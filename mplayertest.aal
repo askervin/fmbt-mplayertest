@@ -4,7 +4,7 @@ aal "mplayertest" {
         import commands
         from time import sleep
 
-        response_time = 1.3 # seconds, mplayer should respond to commands within this time
+        response_time = 2.0 # seconds, mplayer should respond to commands within this time
 
         def launchMplayer():
             global mplayer
@@ -19,15 +19,15 @@ aal "mplayertest" {
 
         def openedMP3File():
             return int(commands.getoutput("basename $(ls -l /proc/" + str(mplayer.pid) +
-                "/fd | awk '/mp3/{print $11}') .mp3"))
+                "/fd | awk '/mp3/{print $NF}') .mp3"))
 
         def playing():
-            cmd = "strace -p " + str(mplayer.pid) + " 2>&1 | head -n 100 | grep 'read(3'"
+            cmd = "strace -p " + str(mplayer.pid) + " 2>&1 | head -n 150 | grep 'read(3'"
             status, output = commands.getstatusoutput(cmd)
             return 0 == status
     }
 
-    # preview-show-vars: songcount
+    # preview-show-vars: song
     # preview-depth: 6
     variables {
         state, song, songcount
