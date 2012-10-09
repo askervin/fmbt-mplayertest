@@ -4,7 +4,7 @@ aal "mplayertest" {
         import commands
         from time import sleep
 
-        response_time = 2.0 # seconds, mplayer should respond to commands within this time
+        response_time = 1.0 # seconds, mplayer should respond to commands within this time
 
         def launchMplayer():
             global mplayer
@@ -22,12 +22,12 @@ aal "mplayertest" {
                 "/fd | awk '/mp3/{print $NF}') .mp3"))
 
         def playing():
-            cmd = "strace -p " + str(mplayer.pid) + " 2>&1 | head -n 150 | grep 'read(3'"
+            cmd = "pacmd list | grep RUNNING"
             status, output = commands.getstatusoutput(cmd)
             return 0 == status
     }
 
-    # preview-show-vars: song
+    # preview-show-vars: songcount
     # preview-depth: 6
     variables {
         state, song, songcount
@@ -36,7 +36,9 @@ aal "mplayertest" {
         state = "playing" # either "playing" or "paused"
         song = 1          # number of the song being played
         songcount = 2     # number of songs in current playlist
+^ifndef "DRYRUN"
         launchMplayer()
+^endif
     }
     action "iPause" {
         guard() { return state == "playing" }
