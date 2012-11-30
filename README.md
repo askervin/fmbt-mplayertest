@@ -22,9 +22,9 @@ $ fmbt-editor mplayertest.aal smoke.conf
 Run tests
 ---------
 
-$ fmbt smoke-realrun.conf
+$ fmbt smoke.conf
 
-$ fmbt rigorous-realrun.conf
+$ fmbt rigorous.conf
 
 
 Generate different tests
@@ -44,4 +44,16 @@ pass      = "coverage(20)"
 
 and run
 
-$ fmbt rigorous-realrun.conf
+$ fmbt rigorous.conf
+
+
+Simulate test runs
+------------------
+
+You can only generate a test instead of generating and running it by
+replacing adapter="aal" with adapter="dummy" in the configuration
+file. Then run
+
+$ fmbt rigorous.conf | fmbt-log
+
+to see the list of actions that would be tested.

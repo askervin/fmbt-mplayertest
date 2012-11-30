@@ -36,10 +36,11 @@ aal "mplayertest" {
         state = "playing" # either "playing" or "paused"
         song = 1          # number of the song being played
         songcount = 2     # number of songs in current playlist
-^ifndef "DRYRUN"
-        launchMplayer()
-^endif
     }
+    adapter_init {
+        launchMplayer()
+    }
+
     action "iPause" {
         guard() { return state == "playing" }
         body()  { state = "paused" }
@@ -89,5 +90,14 @@ aal "mplayertest" {
             song = 1
         }
         adapter() { command("pausing_keep loadfile 1.mp3" ) }
+    }
+    tag "playing", "paused" {
+        guard() { return state == tag_name }
+    }
+    tag "song==1", "song==2", "song==3" {
+        guard() { return eval(tag_name)}
+    }
+    tag  "songcount==1", "songcount==2", "songcount==3" {
+        guard() { return eval(tag_name) }
     }
 }
