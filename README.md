@@ -34,12 +34,14 @@ Test 20 different ways to get from iPause to iContinue or from
 iContinue to iPause. Edit rigorous-realrun.conf, replace lines
 
 coverage  = "perm(3)"
+
 pass      = "no_progress(3)"
 
 with
 
 coverage  = "sum(uwalks(from 'iPause' to 'iContinue'),
                  uwalks(from 'iContinue' to 'iPause'))"
+
 pass      = "coverage(20)"
 
 and run
