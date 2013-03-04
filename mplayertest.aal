@@ -27,8 +27,8 @@ aal "mplayertest" {
             return 0 == status
     }
 
-    # preview-show-vars: songcount
-    # preview-depth: 6
+    # preview-show-vars: song
+    # preview-depth: 5
     variables {
         state, song, songcount
     }
@@ -42,24 +42,14 @@ aal "mplayertest" {
     }
 
     action "iPause" {
-        guard() { return state == "playing" }
-        body()  { state = "paused" }
-        adapter() {
-            assert playing(), "song not played before pausing"
-            assert openedMP3File() == song, "wrong song played"
-            command("pause")
-            assert not playing(), "pausing failed"
-        }
+        guard()   { return state == "playing" }
+        body()    { state = "paused" }
+        adapter() { command("pause") }
     }
     action "iContinue" {
-        guard() { return state == "paused" }
-        body()  { state = "playing" }
-        adapter() {
-            assert not playing(), "song not paused before continuing"
-            command("pause")
-            assert playing(), "continuing failed"
-            assert openedMP3File() == song, "wrong song played"
-        }
+        guard()   { return state == "paused" }
+        body()    { state = "playing" }
+        adapter() { command("pause") }
     }
     action "iNextSong" {
         guard()   { return song < songcount }
@@ -80,8 +70,8 @@ aal "mplayertest" {
         adapter() { command("pausing_keep pt_step -1") }
     }
     action "iAddSong" {
-        guard() { return songcount < 3 }
-        body()  { songcount += 1 }
+        guard()   { return songcount < 3 }
+        body()    { songcount += 1 }
         adapter() { command("pausing_keep loadfile " + str(songcount+1) + ".mp3 1" ) }
     }
     action "iNewPlaylist" {
@@ -91,11 +81,22 @@ aal "mplayertest" {
         }
         adapter() { command("pausing_keep loadfile 1.mp3" ) }
     }
+
     tag "playing", "paused" {
         guard() { return state == tag_name }
+        adapter() {
+            if tag_name == "playing":
+                assert playing() == True, "Player is not playing"
+            else:
+                assert playing() == False, "Player is not paused"
+        }
     }
     tag "song==1", "song==2", "song==3" {
         guard() { return eval(tag_name)}
+        adapter() {
+            if state == "playing":
+                assert openedMP3File() == song, "Playing incorrect song"
+        }
     }
     tag  "songcount==1", "songcount==2", "songcount==3" {
         guard() { return eval(tag_name) }
