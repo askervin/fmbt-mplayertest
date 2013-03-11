@@ -82,20 +82,24 @@ aal "mplayertest" {
         adapter() { command("pausing_keep loadfile 1.mp3" ) }
     }
 
-    tag "playing", "paused" {
-        guard() { return state == tag_name }
+    tag "playing" {
+        guard() { return state == "playing" }
         adapter() {
-            if tag_name == "playing":
-                assert playing() == True, "Player is not playing"
-            else:
-                assert playing() == False, "Player is not paused"
+            assert playing() == True, "Player is not playing"
+        }
+    }
+    tag "paused" {
+        guard() { return state == "paused" }
+        adapter() {
+            assert playing() == False, "Player is not paused"
         }
     }
     tag "song==1", "song==2", "song==3" {
         guard() { return eval(tag_name)}
         adapter() {
             if state == "playing":
-                assert openedMP3File() == song, "Playing incorrect song"
+                assert openedMP3File() == song, "Playing incorrect song." + \
+                " Expected: %s, observed: %s." % (song, openedMP3File())
         }
     }
     tag  "songcount==1", "songcount==2", "songcount==3" {
