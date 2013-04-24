@@ -27,8 +27,8 @@ aal "mplayertest" {
             return 0 == status
     }
 
-    # preview-show-vars: songcount
-    # preview-depth: 6
+    # preview-show-vars: song
+    # preview-depth: 5
     variables {
         state, song, songcount
     }
