@@ -1,5 +1,5 @@
 aal "mplayertest" {
-    language: python {
+    language "python" {
         import pexpect
         import commands
         from time import sleep
@@ -27,8 +27,8 @@ aal "mplayertest" {
             return 0 == status
     }
 
-    # preview-show-vars: song
-    # preview-depth: 5
+    # preview-show-vars: songcount
+    # preview-depth: 6
     variables {
         state, song, songcount
     }
@@ -40,65 +40,65 @@ aal "mplayertest" {
     adapter_init {
         launchMplayer()
     }
+    adapter_exit {
+        command("quit")
+    }
 
-    action "iPause" {
+    input "pause" {
         guard()   { return state == "playing" }
         body()    { state = "paused" }
         adapter() { command("pause") }
     }
-    action "iContinue" {
+    input "continue" {
         guard()   { return state == "paused" }
         body()    { state = "playing" }
         adapter() { command("pause") }
     }
-    action "iNextSong" {
+    input "next song" {
         guard()   { return song < songcount }
         body()    { song += 1 }
         adapter() { command("pausing_keep pt_step 1") }
     }
-    action "iPrevSong" {
+    input "prev song" {
         guard()   { return song > 1 }
         body()    { song -= 1 }
         adapter() { command("pausing_keep pt_step -1") }
     }
-    action "iNextSong - already last" {
+    input "next song - already last" {
         guard()   { return song == songcount }
         adapter() { command("pausing_keep pt_step 1") }
     }
-    action "iPrevSong - already first" {
+    input "prev song - already first" {
         guard()   { return song == 1 }
         adapter() { command("pausing_keep pt_step -1") }
     }
-    action "iAddSong" {
+    input "add song" {
         guard()   { return songcount < 3 }
         body()    { songcount += 1 }
         adapter() { command("pausing_keep loadfile " + str(songcount+1) + ".mp3 1" ) }
     }
-    action "iNewPlaylist" {
-        body()  {
+    input "reset playlist" {
+        body() {
             songcount = 1
             song = 1
         }
         adapter() { command("pausing_keep loadfile 1.mp3" ) }
     }
 
-    tag "playing", "paused" {
-        guard() { return state == tag_name }
-        adapter() {
-            if tag_name == "playing":
-                assert playing() == True, "Player is not playing"
-            else:
-                assert playing() == False, "Player is not paused"
-        }
+    tag "playing" {
+        guard()   { return state == "playing" }
+        adapter() { assert playing() == True, "Player is not playing" }
+    }
+    tag "paused"  {
+        guard()   { return state == "paused" }
+        adapter() { assert playing() == False, "Player is not paused" }
     }
     tag "song==1", "song==2", "song==3" {
-        guard() { return eval(tag_name)}
+        guard()   { return eval(tag_name) }
         adapter() {
             if state == "playing":
-                assert openedMP3File() == song, "Playing incorrect song"
+                assert openedMP3File() == song, "Playing incorrect song." + \
+                " Expected: %s, observed: %s." % (song, openedMP3File())
         }
-    }
-    tag  "songcount==1", "songcount==2", "songcount==3" {
-        guard() { return eval(tag_name) }
     }
 }

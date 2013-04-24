@@ -30,21 +30,20 @@ $ fmbt rigorous.conf
 Generate different tests
 ------------------------
 
-Test 20 different ways to get from iPause to iContinue or from
-iContinue to iPause. Edit rigorous-realrun.conf, replace lines
+Test 20 different ways to get from input "pause" to input "continue",
+or from "continue" to "pause". Edit rigorous.conf, replace lines
 
-coverage  = "perm(3)"
-
-pass      = "no_progress(3)"
+coverage  = perm(3)
+pass      = no_progress(3)
 
 with
 
-coverage  = "sum(uwalks(from 'iPause' to 'iContinue'),
-                 uwalks(from 'iContinue' to 'iPause'))"
+coverage  = sum(uinputs(from 'i:pause' to 'i:continue'), uinputs(from 'i:continue' to 'i:pause'))
+pass      = coverage(20)
 
-pass      = "coverage(20)"
+and increasing step limit (pass = steps(...)).
 
-and run
+Finally run
 
 $ fmbt rigorous.conf
 
@@ -53,8 +52,8 @@ Simulate test runs
 ------------------
 
 You can only generate a test instead of generating and running it by
-replacing adapter="aal" with adapter="dummy" in the configuration
-file. Then run
+commenting out adapter=aal in the configuration file. ("#" starts a
+comment line.) Then run
 
 $ fmbt rigorous.conf | fmbt-log
 
