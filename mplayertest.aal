@@ -1,8 +1,12 @@
 aal "mplayertest" {
-    language "python" {
+    language "python3" {
         import pexpect
-        import commands
+        import subprocess
         from time import sleep
+
+        def getstatusoutput(cmd):
+            r = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, text=True)
+            return r.returncode, r.stdout
 
         response_time = 1.0 # seconds, mplayer should respond to commands within this time
 
@@ -15,16 +19,16 @@ aal "mplayertest" {
             log("mplayer command: " + cmd)
             mplayer.write(cmd + "\n")
             sleep(response_time)
-            log("mplayer response: " + mplayer.read_nonblocking(4096, 0))
+            log("mplayer response: " + str(mplayer.read_nonblocking(4096, 0)))
 
         def openedMP3File():
-            return int(commands.getoutput("basename $(ls -l /proc/" + str(mplayer.pid) +
-                "/fd | awk '/mp3/{print $NF}') .mp3"))
+            return int(getstatusoutput("basename $(ls -l /proc/" + str(mplayer.pid) +
+                "/fd | awk '/mp3/{print $NF}') .mp3")[1])
 
         def playing():
-            cmd = "pacmd list | grep RUNNING"
-            status, output = commands.getstatusoutput(cmd)
-            return 0 == status
+            cmd = "pactl list"
+            status, output = getstatusoutput(cmd)
+            return 0 == status and "RUNNING" in output
     }
 
     # preview-show-vars: song
@@ -73,7 +77,7 @@ aal "mplayertest" {
         adapter { command("pausing_keep pt_step -1") }
     }
     input "add song" {
-        guard   { return songcount < 3 }
+        guard   { return songcount < 5 }
         body    { songcount += 1 }
         adapter { command("pausing_keep loadfile " + str(songcount+1) + ".mp3 1" ) }
     }
